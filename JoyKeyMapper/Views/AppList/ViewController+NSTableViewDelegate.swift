@@ -68,9 +68,26 @@ extension ViewController: NSTableViewDelegate, NSTableViewDataSource {
             }
             
             newView.appName.stringValue = self.convertAppName(appData.displayName)
+            let isGeneric = appData.bundleID?.hasPrefix("generic.profile.") ?? true
+            newView.appName.isEditable = isGeneric
+            newView.appName.target = self
+            newView.appName.action = #selector(didEditProfileName(_:))
         }
         
         return newView
+    }
+
+    @objc func didEditProfileName(_ sender: NSTextField) {
+        let row = self.appTableView.row(for: sender)
+        guard row > 0 else { return }
+        guard let controller = self.selectedController else { return }
+        guard let appConfig = controller.data.appConfigs?[row - 1] as? AppConfig else { return }
+        
+        appConfig.app?.displayName = sender.stringValue
+        _ = self.appDelegate?.dataManager?.save()
+        
+        self.appTableView.reloadData()
+        self.appDelegate?.updateControllersMenu()
     }
 
     func tableViewSelectionDidChange(_ notification: Notification) {

@@ -50,6 +50,8 @@ class GameController {
     var currentLStickConfig: [JoyCon.StickDirection:KeyMap] = [:]
     var currentRStickMode: StickType = .None
     var currentRStickConfig: [JoyCon.StickDirection:KeyMap] = [:]
+    
+    var isProfileLocked: Bool = false
 
     var isEnabled: Bool = true {
         didSet {
@@ -194,6 +196,10 @@ class GameController {
     }
     
     func buttonPressHandler(config: KeyMap) {
+        if config.keyCode == SpecialKeyCode {
+            self.handleSpecialAction(config: config)
+            return
+        }
         DispatchQueue.main.async {
             let source = CGEventSource(stateID: .hidSystemState)
 
@@ -243,6 +249,39 @@ class GameController {
                 event?.flags = CGEventFlags(rawValue: CGEventFlags.RawValue(config.modifiers))
                 event?.post(tap: .cghidEventTap)
             }
+        }
+    }
+    
+    func handleSpecialAction(config: KeyMap) {
+        resetMetaKeyState()
+        if config.mouseButton == SpecialMouse_AutoSwitch {
+            self.isProfileLocked = false
+            if let bundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier {
+                self.switchApp(bundleID: bundleID)
+            }
+            self.refreshMenu()
+            return
+        }
+        
+        if config.mouseButton == SpecialMouse_DefaultProfile {
+            self.isProfileLocked = true
+            self.currentConfigData = self.data.defaultConfig!
+            self.refreshMenu()
+        } else if config.mouseButton >= SpecialMouse_AppProfileBase {
+            let index = Int(config.mouseButton - SpecialMouse_AppProfileBase)
+            if let appConfigs = self.data.appConfigs, index < appConfigs.count {
+                let appConfig = appConfigs[index] as! AppConfig
+                self.isProfileLocked = true
+                self.currentConfigData = appConfig.config!
+                self.refreshMenu()
+            }
+        }
+    }
+
+    func refreshMenu() {
+        DispatchQueue.main.async {
+            guard let delegate = NSApplication.shared.delegate as? AppDelegate else { return }
+            delegate.updateControllersMenu()
         }
     }
     
@@ -430,6 +469,8 @@ class GameController {
     // MARK: -
     
     func switchApp(bundleID: String) {
+        if self.isProfileLocked { return }
+        
         let appConfig = self.data.appConfigs?.first(where: {
             guard let appConfig = $0 as? AppConfig else { return false }
             return appConfig.app?.bundleID == bundleID
@@ -544,6 +585,28 @@ class GameController {
     
     @objc func toggleEnableKeyMappings() {
         self.isEnabled = !self.isEnabled
+    }
+    
+    @objc func switchToDefaultProfile() {
+        self.isProfileLocked = true
+        self.currentConfigData = self.data.defaultConfig!
+        DispatchQueue.main.async {
+            guard let delegate = NSApplication.shared.delegate as? AppDelegate else { return }
+            delegate.updateControllersMenu()
+        }
+    }
+    
+    @objc func switchToProfile(sender: NSMenuItem) {
+        let index = sender.tag
+        if let appConfigs = self.data.appConfigs, index < appConfigs.count {
+            let appConfig = appConfigs[index] as! AppConfig
+            self.isProfileLocked = true
+            self.currentConfigData = appConfig.config!
+            DispatchQueue.main.async {
+                guard let delegate = NSApplication.shared.delegate as? AppDelegate else { return }
+                delegate.updateControllersMenu()
+            }
+        }
     }
     
     @objc func disconnect() {

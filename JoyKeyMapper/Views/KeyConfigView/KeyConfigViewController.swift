@@ -16,6 +16,7 @@ protocol KeyConfigSetDelegate {
 class KeyConfigViewController: NSViewController, NSComboBoxDelegate, KeyConfigComboBoxDelegate {
     var delegate: KeyConfigSetDelegate?
     var keyMap: KeyMap?
+    var controllerData: ControllerData?
     var keyCode: Int16 = -1
     
     @IBOutlet weak var titleLabel: NSTextField!
@@ -46,6 +47,8 @@ class KeyConfigViewController: NSViewController, NSComboBoxDelegate, KeyConfigCo
         self.controlKey.state = modifiers.contains(.control) ? .on : .off
         self.commandKey.state = modifiers.contains(.command) ? .on : .off
         
+        self.updateMouseActionPopup()
+        
         if keyMap.keyCode >= 0 {
             self.keyRadioButton.state = .on
             self.keyAction.stringValue = getKeyName(keyCode: UInt16(keyMap.keyCode))
@@ -56,6 +59,37 @@ class KeyConfigViewController: NSViewController, NSComboBoxDelegate, KeyConfigCo
         self.keyCode = keyMap.keyCode
         self.keyAction.configDelegate = self
         self.keyAction.delegate = self
+    }
+
+    func updateMouseActionPopup() {
+        self.mouseAction.removeAllItems()
+        
+        // Add profiles first so they are more visible
+        self.mouseAction.addItem(withTitle: NSLocalizedString("Switch to Default Profile", comment: ""))
+        self.mouseAction.lastItem?.tag = Int(SpecialMouse_DefaultProfile)
+        
+        self.mouseAction.addItem(withTitle: NSLocalizedString("Enable Auto-Switch", comment: ""))
+        self.mouseAction.lastItem?.tag = Int(SpecialMouse_AutoSwitch)
+        
+        if let appConfigs = self.controllerData?.appConfigs {
+            for i in 0..<appConfigs.count {
+                let appConfig = appConfigs[i] as! AppConfig
+                let appName = appConfig.app?.displayName ?? NSLocalizedString("Generic Profile", comment: "")
+                let title = String.localizedStringWithFormat(NSLocalizedString("Switch to Profile %@", comment: ""), appName)
+                self.mouseAction.addItem(withTitle: title)
+                self.mouseAction.lastItem?.tag = Int(SpecialMouse_AppProfileBase) + i
+            }
+        }
+        
+        self.mouseAction.menu?.addItem(NSMenuItem.separator())
+        
+        // Add standard mouse clicks
+        for i in 0..<mouseButtonNames.count {
+            self.mouseAction.addItem(withTitle: localizedMouseButtonNames[i])
+            self.mouseAction.lastItem?.tag = i
+        }
+        
+        self.mouseAction.synchronizeTitleAndSelectedItem()
     }
     
     func updateKeyMap() {
@@ -94,8 +128,14 @@ class KeyConfigViewController: NSViewController, NSComboBoxDelegate, KeyConfigCo
             keyMap.keyCode = self.keyCode
             keyMap.mouseButton = -1
         } else {
-            keyMap.keyCode = -1
-            keyMap.mouseButton = Int16(self.mouseAction.selectedTag())
+            let tag = Int16(self.mouseAction.selectedTag())
+            if tag >= SpecialMouse_DefaultProfile {
+                keyMap.keyCode = SpecialKeyCode
+                keyMap.mouseButton = tag
+            } else {
+                keyMap.keyCode = -1
+                keyMap.mouseButton = tag
+            }
         }
         
         keyMap.isEnabled = true

@@ -25,6 +25,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
     var controllers: [GameController] = []
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        // Accessibility check
+        self.checkAccessibility()
+
         // Insert code here to initialize your application
         
         // Window initialization
@@ -50,10 +53,26 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
             guard let dataManager = manager else { return }
 
             dataManager.controllers.forEach { data in
+                // Fix missing bundleIDs for generic profiles
+                data.appConfigs?.forEach { obj in
+                    if let appConfig = obj as? AppConfig, appConfig.app?.bundleID == nil {
+                        appConfig.app?.bundleID = "generic.profile.\(UUID().uuidString)"
+                    }
+                }
+                _ = dataManager.save()
+
                 let gameController = GameController(data: data)
                 strongSelf.controllers.append(gameController)
             }
             _ = strongSelf.manager.runAsync()
+            
+            // Check frontmost app immediately
+            if let frontmostApp = NSWorkspace.shared.frontmostApplication,
+               let bundleID = frontmostApp.bundleIdentifier {
+                strongSelf.controllers.forEach { controller in
+                    controller.switchApp(bundleID: bundleID)
+                }
+            }
             
             NSWorkspace.shared.notificationCenter.addObserver(strongSelf, selector: #selector(strongSelf.didActivateApp), name: NSWorkspace.didActivateApplicationNotification, object: nil)
             
@@ -113,6 +132,35 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
             disconnect.action = Selector(("disconnect"))
             disconnect.target = controller
             item.submenu?.addItem(disconnect)
+            
+            // Profiles menu
+            let profiles = NSMenuItem()
+            profiles.title = NSLocalizedString("Profiles", comment: "Profiles")
+            profiles.submenu = NSMenu()
+            
+            let defaultProfile = NSMenuItem()
+            defaultProfile.title = NSLocalizedString("Default", comment: "Default")
+            defaultProfile.action = #selector(GameController.switchToDefaultProfile)
+            defaultProfile.target = controller
+            defaultProfile.state = (controller.currentConfigData === controller.data.defaultConfig) ? .on : .off
+            profiles.submenu?.addItem(defaultProfile)
+            
+            if let appConfigs = controller.data.appConfigs {
+                for i in 0..<appConfigs.count {
+                    let appConfig = appConfigs[i] as! AppConfig
+                    let appName = appConfig.app?.displayName ?? NSLocalizedString("Generic Profile", comment: "")
+                    
+                    let profileItem = NSMenuItem()
+                    profileItem.title = appName
+                    profileItem.tag = i
+                    profileItem.action = #selector(GameController.switchToProfile(sender:))
+                    profileItem.target = controller
+                    profileItem.state = (controller.currentConfigData === appConfig.config) ? .on : .off
+                    profiles.submenu?.addItem(profileItem)
+                }
+            }
+            
+            item.submenu?.addItem(profiles)
             
             // Separator
             item.submenu?.addItem(NSMenuItem.separator())
@@ -293,6 +341,28 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
         
         self.controllers.forEach { controller in
             controller.switchApp(bundleID: bundleID)
+        }
+    }
+
+    // MARK: - Accessibility
+    
+    func checkAccessibility() {
+        let options: NSDictionary = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String : true]
+        let accessEnabled = AXIsProcessTrustedWithOptions(options)
+        
+        if !accessEnabled {
+            let alert = NSAlert()
+            alert.messageText = NSLocalizedString("Accessibility Permissions Required", comment: "")
+            alert.informativeText = NSLocalizedString("JoyKeyMapper needs accessibility permissions to simulate keyboard and mouse events. Please enable it in System Settings > Privacy & Security > Accessibility.", comment: "")
+            alert.addButton(withTitle: NSLocalizedString("Open System Settings", comment: ""))
+            alert.addButton(withTitle: NSLocalizedString("Later", comment: ""))
+            
+            let response = alert.runModal()
+            if response == .alertFirstButtonReturn {
+                if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
+                    NSWorkspace.shared.open(url)
+                }
+            }
         }
     }
 }

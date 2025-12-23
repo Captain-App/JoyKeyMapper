@@ -19,6 +19,11 @@ let localizedMouseButtonNames = mouseButtonNames.map {
 }
 let none = NSLocalizedString("none", comment: "none")
 
+let SpecialKeyCode: Int16 = -10
+let SpecialMouse_DefaultProfile: Int16 = 100
+let SpecialMouse_AppProfileBase: Int16 = 101
+let SpecialMouse_AutoSwitch: Int16 = 200
+
 func convertModifierKeys(_ modifiers: NSEvent.ModifierFlags) -> String {
     var keyName = ""
     if modifiers.contains(.control) {
@@ -36,10 +41,27 @@ func convertModifierKeys(_ modifiers: NSEvent.ModifierFlags) -> String {
     return keyName
 }
 
-func convertKeyName(keyMap: KeyMap?) -> String {
+func convertKeyName(keyMap: KeyMap?, controllerData: ControllerData? = nil) -> String {
     guard let map = keyMap else { return none }
 
     let modifiers = convertModifierKeys(NSEvent.ModifierFlags(rawValue: UInt(map.modifiers)))
+
+    if map.keyCode == SpecialKeyCode {
+        if map.mouseButton == SpecialMouse_DefaultProfile {
+            return NSLocalizedString("Switch to Default Profile", comment: "")
+        } else if map.mouseButton == SpecialMouse_AutoSwitch {
+            return NSLocalizedString("Enable Auto-Switch", comment: "")
+        } else if map.mouseButton >= SpecialMouse_AppProfileBase {
+            let index = Int(map.mouseButton - SpecialMouse_AppProfileBase)
+            if let appConfigs = controllerData?.appConfigs, index < appConfigs.count {
+                let appConfig = appConfigs[index] as! AppConfig
+                let appName = appConfig.app?.displayName ?? "Profile \(index + 1)"
+                return String.localizedStringWithFormat(NSLocalizedString("Switch to Profile %@", comment: ""), appName)
+            }
+            return String.localizedStringWithFormat(NSLocalizedString("Switch to Profile %d", comment: ""), index + 1)
+        }
+        return NSLocalizedString("Special Action", comment: "")
+    }
 
     if map.keyCode >= 0 {
         let keyName = getKeyName(keyCode: UInt16(map.keyCode))

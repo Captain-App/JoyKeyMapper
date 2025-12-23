@@ -87,10 +87,34 @@ class ViewController: NSViewController {
         let selectedSegment = sender.selectedSegment
         
         if selectedSegment == 0 {
-            self.addApp()
+            self.showAddProfileMenu(sender)
         } else if selectedSegment == 1 {
             self.removeApp()
         }
+    }
+    
+    func showAddProfileMenu(_ sender: NSSegmentedControl) {
+        let menu = NSMenu()
+        menu.addItem(withTitle: NSLocalizedString("Add App Profile...", comment: ""), action: #selector(addApp), keyEquivalent: "")
+        menu.addItem(withTitle: NSLocalizedString("Add Generic Profile", comment: ""), action: #selector(addGenericProfile), keyEquivalent: "")
+        
+        let frame = sender.frame
+        let menuOrigin = CGPoint(x: frame.minX, y: frame.maxY)
+        menu.popUp(positioning: nil, at: menuOrigin, in: sender.superview)
+    }
+    
+    @objc func addGenericProfile() {
+        guard let controller = self.selectedController else { return }
+        guard let delegate = NSApplication.shared.delegate as? AppDelegate else { return }
+        guard let manager = delegate.dataManager else { return }
+        
+        let appConfig = manager.createAppConfig(type: controller.type)
+        appConfig.app?.displayName = NSLocalizedString("New Profile", comment: "")
+        appConfig.app?.bundleID = "generic.profile.\(UUID().uuidString)"
+        
+        controller.data.addToAppConfigs(appConfig)
+        self.appTableView.reloadData()
+        _ = manager.save()
     }
     
     func updateAppAddRemoveButtonState() {
@@ -106,7 +130,7 @@ class ViewController: NSViewController {
         }        
     }
     
-    func addApp() {
+    @objc func addApp() {
         guard let controller = self.selectedController else { return }
         
         let panel = NSOpenPanel()

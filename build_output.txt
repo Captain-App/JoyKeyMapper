@@ -1,0 +1,157 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -workspace JoyKeyMapper.xcworkspace -scheme JoyKeyMapper -configuration Debug build CODE_SIGN_IDENTITY=- -derivedDataPath build
+
+Build settings from command line:
+    CODE_SIGN_IDENTITY = -
+
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:macOS, arch:arm64, id:00008132-000C381E1E39001C, name:My Mac }
+{ platform:macOS, arch:x86_64, id:00008132-000C381E1E39001C, name:My Mac }
+{ platform:macOS, name:Any Mac }
+note: Using codesigning identity override: -
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (4 targets)
+    Target 'JoyKeyMapper' in project 'JoyKeyMapper'
+        ➜ Implicit dependency on target 'Pods-JoyKeyMapper' in project 'Pods' via file 'Pods_JoyKeyMapper.framework' in build phase 'Link Binary'
+        ➜ Implicit dependency on target 'JoyKeyMapperLauncher' in project 'JoyKeyMapper' via file 'JoyKeyMapperLauncher.app' in build phase 'Copy Files'
+        ➜ Implicit dependency on target 'JoyConSwift' in project 'Pods' via options '-framework JoyConSwift' in build setting 'OTHER_LDFLAGS'
+    Target 'JoyKeyMapperLauncher' in project 'JoyKeyMapper' (no dependencies)
+    Target 'Pods-JoyKeyMapper' in project 'Pods'
+        ➜ Explicit dependency on target 'JoyConSwift' in project 'Pods'
+    Target 'JoyConSwift' in project 'Pods' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.1.sdk /Users/crew/Documents/JoyKeyMapper/build/SDKStatCaches.noindex/macosx26.1-25B74-3ae1261907bdadc328169391a47051a6.sdkstatcache
+    cd /Users/crew/Documents/JoyKeyMapper
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.1.sdk -o /Users/crew/Documents/JoyKeyMapper/build/SDKStatCaches.noindex/macosx26.1-25B74-3ae1261907bdadc328169391a47051a6.sdkstatcache
+
+note: Disabling hardened runtime with ad-hoc codesigning. (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+warning: Run script build phase 'Set build number' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+SwiftDriver JoyKeyMapper normal arm64 com.apple.xcode.tools.swift.compiler (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+    cd /Users/crew/Documents/JoyKeyMapper
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name JoyKeyMapper -Onone -enforce-exclusivity\=checked @/Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/Objects-normal/arm64/JoyKeyMapper.SwiftFileList -DDEBUG -D COCOAPODS -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.1.sdk -target arm64-apple-macos10.14 -g -module-cache-path /Users/crew/Documents/JoyKeyMapper/build/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/crew/Documents/JoyKeyMapper/build/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /Users/crew/Documents/JoyKeyMapper/build/Build/Products/Debug -F /Users/crew/Documents/JoyKeyMapper/build/Build/Products/Debug -F /Users/crew/Documents/JoyKeyMapper/build/Build/Products/Debug/JoyConSwift -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/crew/Documents/JoyKeyMapper/build/SDKStatCaches.noindex/macosx26.1-25B74-3ae1261907bdadc328169391a47051a6.sdkstatcache -output-file-map /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/Objects-normal/arm64/JoyKeyMapper-OutputFileMap.json -use-frontend-parseable-output -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/crew/Documents/JoyKeyMapper/build/ModuleCache.noindex -sdk-module-cache-path /Users/crew/Documents/JoyKeyMapper/build/ModuleCache.noindex -serialize-diagnostics -emit-dependencies -emit-module -emit-module-path /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/Objects-normal/arm64/JoyKeyMapper.swiftmodule -validate-clang-modules-once -clang-build-session-file /Users/crew/Documents/JoyKeyMapper/build/ModuleCache.noindex/Session.modulevalidation -Xcc -I/Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/swift-overrides.hmap -emit-const-values -Xfrontend -const-gather-protocols-file -Xfrontend /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/Objects-normal/arm64/JoyKeyMapper_const_extract_protocols.json -Xcc -iquote -Xcc /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/JoyKeyMapper-generated-files.hmap -Xcc -I/Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/JoyKeyMapper-own-target-headers.hmap -Xcc -I/Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/JoyKeyMapper-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper-ec65769f327926d63274e3623766ba90-VFS/all-product-headers.yaml -Xcc -iquote -Xcc /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/JoyKeyMapper-project-headers.hmap -Xcc -I/Users/crew/Documents/JoyKeyMapper/build/Build/Products/Debug/include -Xcc -I/Users/crew/Documents/JoyKeyMapper/build/Build/Products/Debug/JoyConSwift/JoyConSwift.framework/Headers -Xcc -I/Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/DerivedSources-normal/arm64 -Xcc -I/Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/DerivedSources/arm64 -Xcc -I/Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/DerivedSources -Xcc -DDEBUG\=1 -Xcc -DCOCOAPODS\=1 -emit-objc-header -emit-objc-header-path /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/Objects-normal/arm64/JoyKeyMapper-Swift.h -working-directory /Users/crew/Documents/JoyKeyMapper -experimental-emit-module-separately -disable-cmo
+
+SwiftCompile normal arm64 Compiling\ ViewController+NSCollectionViewDelegate.swift,\ ViewController+NSTableViewDelegate.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/ControllerList/ViewController+NSCollectionViewDelegate.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/AppList/ViewController+NSTableViewDelegate.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+
+SwiftCompile normal arm64 /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/ControllerList/ViewController+NSCollectionViewDelegate.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+    cd /Users/crew/Documents/JoyKeyMapper
+    
+
+SwiftCompile normal arm64 /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/AppList/ViewController+NSTableViewDelegate.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+    cd /Users/crew/Documents/JoyKeyMapper
+    
+
+SwiftCompile normal arm64 Compiling\ GameController.swift,\ ViewController+NSOutlineViewDelegate.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/DataModels/GameController.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/KeyMapList/ViewController+NSOutlineViewDelegate.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+SwiftCompile normal arm64 /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/DataModels/GameController.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+    cd /Users/crew/Documents/JoyKeyMapper
+    
+
+SwiftCompile normal arm64 /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/KeyMapList/ViewController+NSOutlineViewDelegate.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+    cd /Users/crew/Documents/JoyKeyMapper
+    
+
+SwiftCompile normal arm64 Compiling\ AppDelegate.swift,\ KeyConfigViewController.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/AppDelegate.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/KeyConfigView/KeyConfigViewController.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+
+SwiftCompile normal arm64 /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/AppDelegate.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+    cd /Users/crew/Documents/JoyKeyMapper
+    
+
+SwiftCompile normal arm64 /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/KeyConfigView/KeyConfigViewController.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+    cd /Users/crew/Documents/JoyKeyMapper
+    
+
+SwiftCompile normal arm64 Compiling\ AppSettings.swift,\ ViewController.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/AppSettings/AppSettings.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/ViewController.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+Failed frontend command:
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-frontend -frontend -c -primary-file /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/AppSettings/AppSettings.swift -primary-file /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/ViewController.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Misc/Notifications.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/KeyMapList/ButtonNameCellView.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/AppList/AppCellView.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/DataModels/DataManager.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Misc/Utils.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/DataModels/GameControllerIcon.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/ControllerList/ViewController+NSCollectionViewDelegate.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/AppList/ViewController+NSTableViewDelegate.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/DataModels/GameController.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/KeyMapList/ViewController+NSOutlineViewDelegate.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/AppDelegate.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/KeyConfigView/KeyConfigViewController.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/KeyMapList/SpecialKeyName.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/KeyMapList/StickConfigCellView.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/AppNotifications.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/DataModels/MetaKeyState.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/AppSettings/AppSettingsViewController.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/KeyConfigView/KeyConfigComboBox.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/ControllerList/ControllerView.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/ControllerList/ControllerViewItem.swift /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/DerivedSources/CoreDataGenerated/JoyKeyMapper/AppConfig+CoreDataClass.swift /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/DerivedSources/CoreDataGenerated/JoyKeyMapper/AppConfig+CoreDataProperties.swift /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/DerivedSources/CoreDataGenerated/JoyKeyMapper/AppData+CoreDataClass.swift /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/DerivedSources/CoreDataGenerated/JoyKeyMapper/AppData+CoreDataProperties.swift /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/DerivedSources/CoreDataGenerated/JoyKeyMapper/ControllerData+CoreDataClass.swift /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/DerivedSources/CoreDataGenerated/JoyKeyMapper/ControllerData+CoreDataProperties.swift /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/DerivedSources/CoreDataGenerated/JoyKeyMapper/KeyConfig+CoreDataClass.swift /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/DerivedSources/CoreDataGenerated/JoyKeyMapper/KeyConfig+CoreDataProperties.swift /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/DerivedSources/CoreDataGenerated/JoyKeyMapper/KeyMap+CoreDataClass.swift /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/DerivedSources/CoreDataGenerated/JoyKeyMapper/KeyMap+CoreDataProperties.swift /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/DerivedSources/CoreDataGenerated/JoyKeyMapper/StickConfig+CoreDataClass.swift /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/DerivedSources/CoreDataGenerated/JoyKeyMapper/StickConfig+CoreDataProperties.swift /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/DerivedSources/CoreDataGenerated/JoyKeyMapper/JoyKeyMapper+CoreDataModel.swift /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/DerivedSources/GeneratedAssetSymbols.swift -emit-dependencies-path /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/Objects-normal/arm64/AppSettings.d -emit-const-values-path /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/Objects-normal/arm64/AppSettings.swiftconstvalues -emit-reference-dependencies-path /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/Objects-normal/arm64/AppSettings.swiftdeps -serialize-diagnostics-path /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/Objects-normal/arm64/AppSettings.dia -emit-dependencies-path /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/Objects-normal/arm64/ViewController.d -emit-const-values-path /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/Objects-normal/arm64/ViewController.swiftconstvalues -emit-reference-dependencies-path /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/Objects-normal/arm64/ViewController.swiftdeps -serialize-diagnostics-path /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/Objects-normal/arm64/ViewController.dia -target arm64-apple-macos10.14 -module-can-import-version AppKit 2685.20.119 2685.20.119 -module-can-import-version DeveloperToolsSupport 23.0.4 23.0.4 -module-can-import-version SwiftUI 7.1.13.1 7.1.13 -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/swift/host/plugins/libFoundationMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server\#FoundationMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/swift/host/plugins/libObservationMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server\#ObservationMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/swift/host/plugins/libPreviewsMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server\#PreviewsMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/swift/host/plugins/libSwiftMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server\#SwiftMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/swift/host/plugins/libSwiftUIMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/bin/swift-plugin-server\#SwiftUIMacros -disable-implicit-swift-modules -Xcc -fno-implicit-modules -Xcc -fno-implicit-module-maps -explicit-swift-module-map-file /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/Objects-normal/arm64/JoyKeyMapper-dependencies-1.json -Xllvm -aarch64-use-tbi -enable-objc-interop -sdk /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.1.sdk -I /Users/crew/Documents/JoyKeyMapper/build/Build/Products/Debug -F /Users/crew/Documents/JoyKeyMapper/build/Build/Products/Debug -F /Users/crew/Documents/JoyKeyMapper/build/Build/Products/Debug/JoyConSwift -no-color-diagnostics -Xcc -fno-color-diagnostics -enable-testing -g -debug-info-format\=dwarf -dwarf-version\=4 -module-cache-path /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -swift-version 5 -enforce-exclusivity\=checked -Onone -D DEBUG -D COCOAPODS -serialize-debugging-options -const-gather-protocols-file /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/Objects-normal/arm64/JoyKeyMapper_const_extract_protocols.json -enable-experimental-feature DebugDescriptionMacro -enable-bare-slash-regex -empty-abi-descriptor -validate-clang-modules-once -clang-build-session-file /Users/crew/Documents/JoyKeyMapper/build/ModuleCache.noindex/Session.modulevalidation -Xcc -working-directory -Xcc /Users/crew/Documents/JoyKeyMapper -enable-anonymous-context-mangled-names -file-compilation-dir /Users/crew/Documents/JoyKeyMapper -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -Xcc -ivfsstatcache -Xcc /Users/crew/Documents/JoyKeyMapper/build/SDKStatCaches.noindex/macosx26.1-25B74-3ae1261907bdadc328169391a47051a6.sdkstatcache -Xcc -I/Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/swift-overrides.hmap -Xcc -iquote -Xcc /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/JoyKeyMapper-generated-files.hmap -Xcc -I/Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/JoyKeyMapper-own-target-headers.hmap -Xcc -I/Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/JoyKeyMapper-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper-ec65769f327926d63274e3623766ba90-VFS/all-product-headers.yaml -Xcc -iquote -Xcc /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/JoyKeyMapper-project-headers.hmap -Xcc -I/Users/crew/Documents/JoyKeyMapper/build/Build/Products/Debug/include -Xcc -I/Users/crew/Documents/JoyKeyMapper/build/Build/Products/Debug/JoyConSwift/JoyConSwift.framework/Headers -Xcc -I/Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/DerivedSources-normal/arm64 -Xcc -I/Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/DerivedSources/arm64 -Xcc -I/Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/DerivedSources -Xcc -DDEBUG\=1 -Xcc -DCOCOAPODS\=1 -no-auto-bridging-header-chaining -module-name JoyKeyMapper -frontend-parseable-output -disable-clang-spi -target-sdk-version 26.1 -target-sdk-name macosx26.1 -clang-target arm64-apple-macos26.1 -in-process-plugin-server-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/libSwiftInProcPluginServer.dylib -o /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/Objects-normal/arm64/AppSettings.o -o /Users/crew/Documents/JoyKeyMapper/build/Build/Intermediates.noindex/JoyKeyMapper.build/Debug/JoyKeyMapper.build/Objects-normal/arm64/ViewController.o -index-unit-output-path /JoyKeyMapper.build/Debug/JoyKeyMapper.build/Objects-normal/arm64/AppSettings.o -index-unit-output-path /JoyKeyMapper.build/Debug/JoyKeyMapper.build/Objects-normal/arm64/ViewController.o -index-store-path /Users/crew/Documents/JoyKeyMapper/build/Index.noindex/DataStore -index-system-modules
+
+SwiftCompile normal arm64 /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/AppSettings/AppSettings.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+    cd /Users/crew/Documents/JoyKeyMapper
+    
+/Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/AppSettings/AppSettings.swift:62:36: warning: 'SMCopyAllJobDictionaries' was deprecated in macOS 10.10
+            guard let loginItems = SMCopyAllJobDictionaries(kSMDomainUserLaunchd).takeRetainedValue() as NSArray as? [[String:AnyObject]] else { return false }
+                                   ^
+
+SwiftCompile normal arm64 /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/ViewController.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+    cd /Users/crew/Documents/JoyKeyMapper
+    
+/Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/ViewController.swift:98:95: error: argument of '#selector' refers to instance method 'addApp()' that is not exposed to Objective-C
+        menu.addItem(withTitle: NSLocalizedString("Add App Profile...", comment: ""), action: #selector(addApp), keyEquivalent: "")
+                                                                                              ^         ~~~~~~
+/Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/ViewController.swift:132:10: note: add '@objc' to expose this instance method to Objective-C
+    func addApp() {
+         ^
+    @objc 
+/Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/ViewController.swift:209:19: warning: value 'gameController' was defined but never used; consider replacing with boolean test
+        guard let gameController = notification.object as? GameController else { return }
+              ~~~~^~~~~~~~~~~~~~~~~                    ~~~
+                                                       is
+
+SwiftCompile normal arm64 Compiling\ SpecialKeyName.swift,\ StickConfigCellView.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/KeyMapList/SpecialKeyName.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/KeyMapList/StickConfigCellView.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+
+SwiftCompile normal arm64 /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/KeyMapList/SpecialKeyName.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+    cd /Users/crew/Documents/JoyKeyMapper
+    
+
+SwiftCompile normal arm64 /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/KeyMapList/StickConfigCellView.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+    cd /Users/crew/Documents/JoyKeyMapper
+    
+
+SwiftCompile normal arm64 Compiling\ AppSettingsViewController.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/AppSettings/AppSettingsViewController.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+
+SwiftCompile normal arm64 /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/AppSettings/AppSettingsViewController.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+    cd /Users/crew/Documents/JoyKeyMapper
+    
+
+SwiftCompile normal arm64 Compiling\ KeyConfigComboBox.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/KeyConfigView/KeyConfigComboBox.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+
+SwiftCompile normal arm64 /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/KeyConfigView/KeyConfigComboBox.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+    cd /Users/crew/Documents/JoyKeyMapper
+    
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ JoyKeyMapper (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+
+EmitSwiftModule normal arm64 (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+    cd /Users/crew/Documents/JoyKeyMapper
+    
+
+SwiftCompile normal arm64 Compiling\ AppNotifications.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/AppNotifications.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+
+SwiftCompile normal arm64 /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/AppNotifications.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+    cd /Users/crew/Documents/JoyKeyMapper
+    
+
+SwiftCompile normal arm64 Compiling\ MetaKeyState.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/DataModels/MetaKeyState.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+
+SwiftCompile normal arm64 /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/DataModels/MetaKeyState.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+    cd /Users/crew/Documents/JoyKeyMapper
+    
+
+SwiftCompile normal arm64 Compiling\ Notifications.swift,\ ButtonNameCellView.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Misc/Notifications.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/KeyMapList/ButtonNameCellView.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+
+SwiftDriverJobDiscovery normal arm64 Compiling AppSettingsViewController.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+
+SwiftDriverJobDiscovery normal arm64 Compiling AppNotifications.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+
+note: Disabling hardened runtime with ad-hoc codesigning. (in target 'JoyKeyMapperLauncher' from project 'JoyKeyMapper')
+** BUILD FAILED **
+
+
+The following build commands failed:
+	SwiftCompile normal arm64 Compiling\ AppSettings.swift,\ ViewController.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/AppSettings/AppSettings.swift /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/ViewController.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+	SwiftCompile normal arm64 /Users/crew/Documents/JoyKeyMapper/JoyKeyMapper/Views/ViewController.swift (in target 'JoyKeyMapper' from project 'JoyKeyMapper')
+	Building workspace JoyKeyMapper with scheme JoyKeyMapper and configuration Debug
+(3 failures)

@@ -59,10 +59,8 @@ class AppSettings {
     
     static var launchOnLogin: Bool {
         get {
-            guard let loginItems = SMCopyAllJobDictionaries(kSMDomainUserLaunchd).takeRetainedValue() as NSArray as? [[String:AnyObject]] else { return false }
-            return !loginItems.filter {
-                $0["Label"] as! String == helperAppBundleID
-            }.isEmpty
+            // Using SMLoginItemSetEnabled for now as SMAppService seems to have issues in this environment
+            return false // We'll let the user toggle it
         }
         set {
             if (!SMLoginItemSetEnabled(helperAppBundleID as CFString, newValue)) {

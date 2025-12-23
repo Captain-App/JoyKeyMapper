@@ -401,7 +401,7 @@ extension ViewController: NSOutlineViewDelegate, NSOutlineViewDataSource, KeyCon
                 return nil
             }
             
-            let keyName = convertKeyName(keyMap: keyMap)
+            let keyName = convertKeyName(keyMap: keyMap, controllerData: self.selectedControllerData)
             itemView.textField?.stringValue = keyName
             
             return itemView
@@ -461,7 +461,7 @@ extension ViewController: NSOutlineViewDelegate, NSOutlineViewDataSource, KeyCon
                 return nil
             }
             
-            let keyName = convertKeyName(keyMap: keyMap)
+            let keyName = convertKeyName(keyMap: keyMap, controllerData: self.selectedControllerData)
             itemView.textField?.stringValue = keyName
 
             return itemView
@@ -522,6 +522,7 @@ extension ViewController: NSOutlineViewDelegate, NSOutlineViewDataSource, KeyCon
         
         guard let controller = self.storyboard?.instantiateController(withIdentifier: "KeyConfigViewController") as? KeyConfigViewController else { return }
         controller.keyMap = map
+        controller.controllerData = self.selectedControllerData
         controller.delegate = self
         
         self.presentAsSheet(controller)
@@ -552,6 +553,7 @@ extension ViewController: NSOutlineViewDelegate, NSOutlineViewDataSource, KeyCon
         
         guard let controller = self.storyboard?.instantiateController(withIdentifier: "KeyConfigViewController") as? KeyConfigViewController else { return }
         controller.keyMap = map
+        controller.controllerData = self.selectedControllerData
         controller.delegate = self
         
         self.presentAsSheet(controller)
