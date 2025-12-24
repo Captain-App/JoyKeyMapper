@@ -1,3 +1,5 @@
+
+
 //
 //  AppDelegate.swift
 //  JoyKeyMapper
@@ -87,6 +89,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
         center.delegate = self
     }
     
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if !flag {
+            self.openSettings(self)
+        }
+        return true
+    }
+
     // MARK: - Menu
     
     @IBAction func openAbout(_ sender: Any) {

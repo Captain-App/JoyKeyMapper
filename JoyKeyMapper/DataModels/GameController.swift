@@ -125,8 +125,7 @@ class GameController {
         guard let controller = self.controller else { return }
         
         controller.setPlayerLights(l1: .on, l2: .off, l3: .off, l4: .off)
-        controller.enableIMU(enable: true)
-        controller.setInputMode(mode: .standardFull)
+        self.updateInputMode()
         controller.buttonPressHandler = { [weak self] button in
             self?.buttonPressHandler(button: button)
         }
@@ -538,6 +537,56 @@ class GameController {
             newRightStickMap[direction] = keyMap
         }
         self.currentRStickConfig = newRightStickMap
+        
+        self.updateInputMode()
+    }
+    
+    func updateInputMode() {
+        guard let controller = self.controller else { return }
+        
+        var needsFullMode = false
+        
+        // Check sticks mode
+        if self.currentLStickMode == .Mouse || self.currentLStickMode == .MouseWheel ||
+           self.currentRStickMode == .Mouse || self.currentRStickMode == .MouseWheel {
+            needsFullMode = true
+        }
+        
+        // Check buttons for any keyboard/mouse mapping
+        if !needsFullMode {
+            for map in self.currentConfig.values {
+                if map.keyCode >= 0 || (map.mouseButton >= 0 && map.keyCode != SpecialKeyCode) {
+                    needsFullMode = true
+                    break
+                }
+            }
+        }
+        
+        // Check stick-to-key/mouse mappings
+        if !needsFullMode {
+            for map in self.currentLStickConfig.values {
+                if map.keyCode >= 0 || (map.mouseButton >= 0 && map.keyCode != SpecialKeyCode) {
+                    needsFullMode = true
+                    break
+                }
+            }
+            if !needsFullMode {
+                for map in self.currentRStickConfig.values {
+                    if map.keyCode >= 0 || (map.mouseButton >= 0 && map.keyCode != SpecialKeyCode) {
+                        needsFullMode = true
+                        break
+                    }
+                }
+            }
+        }
+        
+        if needsFullMode {
+            controller.seize()
+            controller.enableIMU(enable: true)
+            controller.setInputMode(mode: .standardFull)
+        } else {
+            controller.release()
+        }
     }
     
     func addApp(url: URL) {

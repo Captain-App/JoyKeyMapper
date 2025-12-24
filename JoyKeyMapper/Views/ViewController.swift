@@ -95,7 +95,7 @@ class ViewController: NSViewController {
     
     func showAddProfileMenu(_ sender: NSSegmentedControl) {
         let menu = NSMenu()
-        menu.addItem(withTitle: NSLocalizedString("Add App Profile...", comment: ""), action: #selector(addApp), keyEquivalent: "")
+        menu.addItem(withTitle: NSLocalizedString("Add App Profile...", comment: ""), action: #selector(addAppProfile), keyEquivalent: "")
         menu.addItem(withTitle: NSLocalizedString("Add Generic Profile", comment: ""), action: #selector(addGenericProfile), keyEquivalent: "")
         
         let frame = sender.frame
@@ -130,7 +130,7 @@ class ViewController: NSViewController {
         }        
     }
     
-    @objc func addApp() {
+    @objc func addAppProfile() {
         guard let controller = self.selectedController else { return }
         
         let panel = NSOpenPanel()
@@ -191,6 +191,7 @@ class ViewController: NSViewController {
     
     @objc func controllerRemoved(_ notification: NSNotification) {
         guard let gameController = notification.object as? GameController else { return }
+        _ = gameController // Suppress warning
         
         DispatchQueue.main.async { [weak self] in
             guard let _self = self else { return }
