@@ -1,61 +1,74 @@
-[日本語](https://github.com/magicien/JoyKeyMapper/blob/master/lang/ja/README.md)
-
 # JoyKeyMapper
-Nintendo Joy-Con/ProController Key mapper for macOS
 
-![screenshot](https://github.com/magicien/JoyKeyMapper/blob/master/resources/screenshot/screenshot_1.png)
+A macOS application to map Nintendo Switch Joy-Con and Pro Controller inputs to keyboard and mouse events.
 
-## Install from App Store (Recommended)
+## Prerequisites
 
-[Mac App Store page](https://apps.apple.com/app/joykeymapper/id1511416593)
+- macOS 12.0 or later
+- Xcode 14+ and Command Line Tools
+- A Nintendo Switch Pro Controller or Joy-Cons
 
-## Install from Github
+## Installation
 
-1. Download a dmg file (JoyKeyMapper-vX.X.X.dmg) from [Releases](https://github.com/magicien/JoyKeyMapper/releases)
+### 1. Build the Application
 
-2. Copy JoyKeyMapper.app to Applications
-![screenshot_install](https://github.com/magicien/JoyKeyMapper/blob/master/resources/screenshot/screenshot_2.png)
+From the project root, run the following command to build the app without requiring a development certificate:
 
-## How to use
+```bash
+xcodebuild -workspace JoyKeyMapper.xcworkspace \
+           -scheme JoyKeyMapper \
+           -configuration Debug build \
+           CODE_SIGN_IDENTITY="-" \
+           CODE_SIGNING_REQUIRED=NO \
+           CODE_SIGNING_ALLOWED=NO \
+           -derivedDataPath build
+```
 
-1. Connect your controller via Bluetooth
+### 2. Move to a Stable Location
 
-    1.1. Open "System Preferences" > "Bluetooth" on your Mac
-    
-    1.2. Hold down your controller's sync button
-    
-    1.3. Click the "Connect" button
-    
-    ![screenshot_usage_1_3](https://github.com/magicien/JoyKeyMapper/blob/master/resources/screenshot/screenshot_3.png)
+MacOS security (TCC) identifies apps by their path and signature. To avoid losing permissions every time you rebuild or move the file, move the built app to your `/Applications` folder:
 
-2. Set key mappings
+```bash
+cp -R build/Build/Products/Debug/JoyKeyMapper.app /Applications/
+```
 
-    2.1 Launch JoyKeyMapper.app
-    
-    2.2 Choose the "Settings..." menu
+## Solving "Accessibility Hell"
 
-    ![screenshot_usage_2_2](https://github.com/magicien/JoyKeyMapper/blob/master/resources/screenshot/screenshot_4.png)    
+If the app is enabled in **System Settings > Privacy & Security > Accessibility** but buttons still don't work, or if you get repeated prompts, follow these steps to force-refresh the permissions:
 
-    2.3 Add apps to set key mappings (optional)
-    
-    ![screenshot_usage_2_3](https://github.com/magicien/JoyKeyMapper/blob/master/resources/screenshot/screenshot_5.png)    
-    
-    2.4 Click a button to set a key
-    
-    ![screenshot_usage_2_4_1](https://github.com/magicien/JoyKeyMapper/blob/master/resources/screenshot/screenshot_6.png)
+### 1. Force Reset Accessibility Permissions
+Open Terminal and run:
+```bash
+sudo tccutil reset Accessibility jp.0spec.JoyKeyMapper
+```
 
-    ![screenshot_usage_2_4_2](https://github.com/magicien/JoyKeyMapper/blob/master/resources/screenshot/screenshot_7.png)
+### 2. Register the App with Launch Services
+Run this to tell macOS the app is trusted and located in /Applications:
+```bash
+/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f /Applications/JoyKeyMapper.app
+```
 
-3. Allow JoyKeyMapper to control Accessibility
+### 3. Re-enable in System Settings
+1. Open **System Settings > Privacy & Security > Accessibility**.
+2. If `JoyKeyMapper` is in the list, remove it with the `-` button.
+3. Click the `+` button and select `/Applications/JoyKeyMapper.app`.
+4. Ensure the toggle is **ON**.
 
-    3.1 When you start using your controller, you will see this alert.
-    
-    ![screenshot_usage_3_1](https://github.com/magicien/JoyKeyMapper/blob/master/resources/screenshot/screenshot_8.png)    
-    
-    3.2 Open "System Preferences" > "Security & Privacy" > "Privacy" tab > "Accessibility", and check "JoyKeyMapper.app"
-    
-    ![screenshot_usage_3_2](https://github.com/magicien/JoyKeyMapper/blob/master/resources/screenshot/screenshot_9.png)    
+## Usage
 
-## See also
+1. Launch `JoyKeyMapper` from `/Applications`.
+2. Grant **Bluetooth** permissions when prompted (required to talk to the controllers).
+3. Connect your controller via Bluetooth.
+4. Use the menu bar icon to:
+   - Configure button mappings.
+   - Switch profiles.
+   - **Refresh Controllers**: Use this if the controller disconnects and doesn't recover automatically.
 
-[JoyConSwift](https://github.com/magicien/JoyConSwift) - IOKit wrapper for Nintendo Joy-Con and ProController (macOS, Swift)
+## Troubleshooting
+
+- **Logs**: The app writes detailed debug information to `~/JoyKeyMapper.log`. You can watch it in real-time with:
+  ```bash
+  tail -f ~/JoyKeyMapper.log
+  ```
+- **Controller Detection**: If other apps (like a web browser) can't see the controller, try disabling your mappings or closing JoyKeyMapper, as it seizes the device for exclusive remapping.
+- **Buttons Not Clicking**: Ensure the Accessibility permission is fresh (follow the "Accessibility Hell" steps above).

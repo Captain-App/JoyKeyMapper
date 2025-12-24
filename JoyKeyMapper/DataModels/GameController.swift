@@ -190,7 +190,11 @@ class GameController {
     }
     
     func buttonPressHandler(button: JoyCon.Button) {
-        guard let config = self.currentConfig[button] else { return }
+        NSLog("buttonPressHandler: \(button) pressed on \(self.data.serialID ?? "unknown")")
+        guard let config = self.currentConfig[button] else { 
+            NSLog("No config for button \(button)")
+            return 
+        }
         self.buttonPressHandler(config: config)
     }
     
@@ -199,7 +203,17 @@ class GameController {
             self.handleSpecialAction(config: config)
             return
         }
-        DispatchQueue.main.async {
+        
+        if !self.isEnabled { return }
+
+        // Move to high-priority background queue to match stick movement performance
+        DispatchQueue.global(qos: .userInteractive).async {
+            let isTrusted = AXIsProcessTrusted()
+            if !isTrusted {
+                // If not trusted, we can't post events. Log it only occasionally to avoid spam.
+                // NSLog("Accessibility: Event posting failed because app is NOT trusted.")
+            }
+
             let source = CGEventSource(stateID: .hidSystemState)
 
             if config.keyCode >= 0 {
@@ -220,33 +234,49 @@ class GameController {
                         subtype: Int16(NX_SUBTYPE_AUX_CONTROL_BUTTONS),
                         data1: data1,
                         data2: -1)
-                    ev?.cgEvent?.post(tap: .cghidEventTap)
+                    if let cgEvent = ev?.cgEvent {
+                        cgEvent.post(tap: .cghidEventTap)
+                        NSLog("Posted system-defined key event: %d (Trusted: %d)", systemKey, isTrusted ? 1 : 0)
+                    }
                 } else {
                     let event = CGEvent(keyboardEventSource: source, virtualKey: CGKeyCode(config.keyCode), keyDown: true)
                     event?.flags = CGEventFlags(rawValue: CGEventFlags.RawValue(config.modifiers))
-                    event?.post(tap: .cghidEventTap)
+                    if let event = event {
+                        event.post(tap: .cghidEventTap)
+                        NSLog("Posted keyboard key down: %d (flags: %llu, Trusted: %d)", config.keyCode, config.modifiers, isTrusted ? 1 : 0)
+                    }
                 }
             }
         
             if config.mouseButton >= 0 {
                 let mousePos = NSEvent.mouseLocation
-                let cursorPos = CGPoint(x: mousePos.x, y: NSScreen.main!.frame.maxY - mousePos.y)
+                
+                // CGDisplayBounds is thread-safe
+                let screenHeight = CGDisplayBounds(CGMainDisplayID()).height
+                let cursorPos = CGPoint(x: mousePos.x, y: screenHeight - mousePos.y)
 
                 metaKeyEvent(config: config, keyDown: true)
 
                 var event: CGEvent?
+                var mouseTypeString = ""
                 if config.mouseButton == 0 {
                     event = CGEvent(mouseEventSource: source, mouseType: .leftMouseDown, mouseCursorPosition: cursorPos, mouseButton: .left)
                     self.isLeftDragging = true
+                    mouseTypeString = "leftMouseDown"
                 } else if config.mouseButton == 1 {
                     event = CGEvent(mouseEventSource: source, mouseType: .rightMouseDown, mouseCursorPosition: cursorPos, mouseButton: .right)
                     self.isRightDragging = true
+                    mouseTypeString = "rightMouseDown"
                 } else if config.mouseButton == 2 {
                     event = CGEvent(mouseEventSource: source, mouseType: .otherMouseDown, mouseCursorPosition: cursorPos, mouseButton: .center)
                     self.isCenterDragging = true
+                    mouseTypeString = "otherMouseDown"
                 }
                 event?.flags = CGEventFlags(rawValue: CGEventFlags.RawValue(config.modifiers))
-                event?.post(tap: .cghidEventTap)
+                if let event = event {
+                    event.post(tap: .cghidEventTap)
+                    NSLog("Posted mouse event: %@ at (%.1f, %.1f) (Trusted: %d)", mouseTypeString, cursorPos.x, cursorPos.y, isTrusted ? 1 : 0)
+                }
             }
         }
     }
@@ -290,7 +320,9 @@ class GameController {
     }
     
     func buttonReleaseHandler(config: KeyMap) {
-        DispatchQueue.main.async {
+        if !self.isEnabled { return }
+
+        DispatchQueue.global(qos: .userInteractive).async {
             let source = CGEventSource(stateID: .hidSystemState)
             
             if config.keyCode >= 0 {
@@ -309,11 +341,17 @@ class GameController {
                         subtype: Int16(NX_SUBTYPE_AUX_CONTROL_BUTTONS),
                         data1: data1,
                         data2: -1)
-                    ev?.cgEvent?.post(tap: .cghidEventTap)
+                    if let cgEvent = ev?.cgEvent {
+                        cgEvent.post(tap: .cghidEventTap)
+                        NSLog("Posted system-defined key release: %d", systemKey)
+                    }
                 } else {
                     let event = CGEvent(keyboardEventSource: source, virtualKey: CGKeyCode(config.keyCode), keyDown: false)
                     event?.flags = CGEventFlags(rawValue: CGEventFlags.RawValue(config.modifiers))
-                    event?.post(tap: .cghidEventTap)
+                    if let event = event {
+                        event.post(tap: .cghidEventTap)
+                        NSLog("Posted keyboard key up: %d", config.keyCode)
+                    }
                 }
                     
                 metaKeyEvent(config: config, keyDown: false)
@@ -321,20 +359,28 @@ class GameController {
 
             if config.mouseButton >= 0 {
                 let mousePos = NSEvent.mouseLocation
-                let cursorPos = CGPoint(x: mousePos.x, y: NSScreen.main!.frame.maxY - mousePos.y)
+                let screenHeight = CGDisplayBounds(CGMainDisplayID()).height
+                let cursorPos = CGPoint(x: mousePos.x, y: screenHeight - mousePos.y)
                 
                 var event: CGEvent?
+                var mouseTypeString = ""
                 if config.mouseButton == 0 {
                     event = CGEvent(mouseEventSource: source, mouseType: .leftMouseUp, mouseCursorPosition: cursorPos, mouseButton: .left)
                     self.isLeftDragging = false
+                    mouseTypeString = "leftMouseUp"
                 } else if config.mouseButton == 1 {
                     event = CGEvent(mouseEventSource: source, mouseType: .rightMouseUp, mouseCursorPosition: cursorPos, mouseButton: .right)
                     self.isRightDragging = false
+                    mouseTypeString = "rightMouseUp"
                 } else if config.mouseButton == 2 {
                     event = CGEvent(mouseEventSource: source, mouseType: .otherMouseUp, mouseCursorPosition: cursorPos, mouseButton: .center)
                     self.isCenterDragging = false
+                    mouseTypeString = "otherMouseUp"
                 }
-                event?.post(tap: .cghidEventTap)
+                if let event = event {
+                    event.post(tap: .cghidEventTap)
+                    NSLog("Posted mouse release: %@", mouseTypeString)
+                }
             }
         }
     }
@@ -352,15 +398,25 @@ class GameController {
         let source = CGEventSource(stateID: .hidSystemState)
         if self.isLeftDragging {
             let event = CGEvent(mouseEventSource: source, mouseType: .leftMouseDragged, mouseCursorPosition: newPos, mouseButton: .left)
-            event?.post(tap: .cghidEventTap)
+            if let event = event {
+                event.post(tap: .cghidEventTap)
+                NSLog("Posted leftMouseDragged to (%.1f, %.1f)", newPos.x, newPos.y)
+            }
         } else if self.isRightDragging {
             let event = CGEvent(mouseEventSource: source, mouseType: .rightMouseDragged, mouseCursorPosition: newPos, mouseButton: .right)
-            event?.post(tap: .cghidEventTap)
+            if let event = event {
+                event.post(tap: .cghidEventTap)
+                NSLog("Posted rightMouseDragged to (%.1f, %.1f)", newPos.x, newPos.y)
+            }
         } else if self.isCenterDragging {
             let event = CGEvent(mouseEventSource: source, mouseType: .otherMouseDragged, mouseCursorPosition: newPos, mouseButton: .center)
-            event?.post(tap: .cghidEventTap)
+            if let event = event {
+                event.post(tap: .cghidEventTap)
+                NSLog("Posted otherMouseDragged to (%.1f, %.1f)", newPos.x, newPos.y)
+            }
         } else {
             CGDisplayMoveCursorToPoint(CGMainDisplayID(), newPos)
+            // No NSLog here to avoid spamming the log during movement
         }
     }
     
@@ -468,14 +524,19 @@ class GameController {
     // MARK: -
     
     func switchApp(bundleID: String) {
-        if self.isProfileLocked { return }
+        if self.isProfileLocked { 
+            NSLog("Profile is locked for %@, not switching to %@", self.data.serialID ?? "unknown", bundleID)
+            return 
+        }
         
+        NSLog("Switching app for %@ to %@", self.data.serialID ?? "unknown", bundleID)
         let appConfig = self.data.appConfigs?.first(where: {
             guard let appConfig = $0 as? AppConfig else { return false }
             return appConfig.app?.bundleID == bundleID
         }) as? AppConfig
         
         if let keyConfig = appConfig?.config {
+            NSLog("Found app-specific config for %@", bundleID)
             self.currentConfigData = keyConfig
             return
         }
@@ -483,6 +544,7 @@ class GameController {
         guard let defaultConfig = self.data.defaultConfig else {
             fatalError("Failed to get defaultConfig")
         }
+        NSLog("No app-specific config for %@, using default profile", bundleID)
         self.currentConfigData = defaultConfig
     }
     
@@ -542,7 +604,10 @@ class GameController {
     }
     
     func updateInputMode() {
-        guard let controller = self.controller else { return }
+        guard let controller = self.controller else { 
+            NSLog("updateInputMode: No controller for %@", self.data.serialID ?? "unknown")
+            return 
+        }
         
         var needsFullMode = false
         
@@ -581,10 +646,12 @@ class GameController {
         }
         
         if needsFullMode {
+            NSLog("updateInputMode: Full mode needed for %@", self.data.serialID ?? "unknown")
             controller.seize()
             controller.enableIMU(enable: true)
             controller.setInputMode(mode: .standardFull)
         } else {
+            NSLog("updateInputMode: Shared mode (simple) for %@", self.data.serialID ?? "unknown")
             controller.release()
         }
     }

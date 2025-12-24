@@ -27,6 +27,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
     var controllers: [GameController] = []
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        // Setup logging to a file in the Home folder
+        let logPath = (NSHomeDirectory() as NSString).appendingPathComponent("JoyKeyMapper.log")
+        freopen(logPath.cString(using: .ascii)!, "a", stderr)
+        NSLog("--- JoyKeyMapper started ---")
+        
+        // Prevent the app from being suspended or terminated automatically
+        ProcessInfo.processInfo.disableAutomaticTermination("Remapping engine needs to stay active")
+        ProcessInfo.processInfo.disableSuddenTermination()
+        
         // Accessibility check
         self.checkAccessibility()
 
@@ -51,10 +60,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
         }
         
         self.dataManager = DataManager() { [weak self] manager in
+            NSLog("DataManager initialized")
             guard let strongSelf = self else { return }
             guard let dataManager = manager else { return }
 
             dataManager.controllers.forEach { data in
+                NSLog("Loading controller data for: %@", data.serialID ?? "unknown")
                 // Fix missing bundleIDs for generic profiles
                 data.appConfigs?.forEach { obj in
                     if let appConfig = obj as? AppConfig, appConfig.app?.bundleID == nil {
@@ -66,6 +77,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
                 let gameController = GameController(data: data)
                 strongSelf.controllers.append(gameController)
             }
+            NSLog("Starting JoyConManager runAsync")
             _ = strongSelf.manager.runAsync()
             
             // Check frontmost app immediately
@@ -115,10 +127,26 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
     }
 
     func updateControllersMenu() {
+        if !Thread.isMainThread {
+            DispatchQueue.main.async {
+                self.updateControllersMenu()
+            }
+            return
+        }
+        
+        NSLog("updateControllersMenu called on Main Thread. Total controllers in memory: %d", self.controllers.count)
         self.controllersMenu?.submenu?.removeAllItems()
+        
+        // Add Refresh item
+        let refreshItem = NSMenuItem(title: NSLocalizedString("Refresh Controllers", comment: "Refresh Controllers"), action: #selector(refreshControllers), keyEquivalent: "r")
+        refreshItem.target = self
+        self.controllersMenu?.submenu?.addItem(refreshItem)
+        self.controllersMenu?.submenu?.addItem(NSMenuItem.separator())
 
         self.controllers.forEach { controller in
-            guard controller.controller?.isConnected ?? false else { return }
+            let isConnected = controller.controller?.isConnected ?? false
+            NSLog("Controller %@ - isConnected: %d", controller.data.serialID ?? "unknown", isConnected ? 1 : 0)
+            guard isConnected else { return }
             let item = NSMenuItem()
 
             item.title = ""
@@ -240,15 +268,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
     }
     
     func connectController(_ controller: JoyConSwift.Controller) {
+        NSLog("connectController called for: %@", controller.serialID)
         if let gameController = self.controllers.first(where: {
             $0.data.serialID == controller.serialID
         }) {
+            NSLog("Reconnecting existing controller: %@", controller.serialID)
             gameController.controller = controller
             gameController.startTimer()
             NotificationCenter.default.post(name: .controllerConnected, object: gameController)
 
             AppNotifications.notifyControllerConnected(gameController)
         } else {
+            NSLog("Adding new controller: %@", controller.serialID)
             self.addController(controller)
         }
         self.updateControllersMenu()
@@ -303,6 +334,26 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
         NotificationCenter.default.post(name: .controllerRemoved, object: controller)
     }
 
+    @objc func refreshControllers() {
+        NSLog("User requested manual controller refresh")
+        
+        // Stop current manager
+        self.manager.stop()
+        
+        // Clear current state
+        self.controllers.forEach { controller in
+            controller.controller = nil
+        }
+        
+        // Wait a bit for threads to settle before restarting
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+            guard let strongSelf = self else { return }
+            NSLog("Restarting JoyConManager after manual refresh")
+            _ = strongSelf.manager.runAsync()
+            strongSelf.updateControllersMenu()
+        }
+    }
+    
     // MARK: - Core Data Saving and Undo support
 
     @IBAction func saveAction(_ sender: AnyObject?) {
@@ -356,21 +407,46 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, UNUserNoti
     // MARK: - Accessibility
     
     func checkAccessibility() {
-        let options: NSDictionary = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String : true]
-        let accessEnabled = AXIsProcessTrustedWithOptions(options)
+        let checkOptions: NSDictionary = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String : false]
+        if AXIsProcessTrustedWithOptions(checkOptions) {
+            NSLog("Accessibility: System reports PERMISSION GRANTED.")
+            return
+        }
+
+        let lastPromptDate = UserDefaults.standard.object(forKey: "lastAccessibilityPromptDate") as? Date
+        if let lastDate = lastPromptDate, Date().timeIntervalSince(lastDate) < 3600 {
+            // Only prompt once per hour if it's failing but granted
+            NSLog("Accessibility: System reports DENIED, but skipping prompt (already prompted within last hour).")
+            return
+        }
+
+        NSLog("Accessibility: System reports PERMISSION DENIED. Prompting user via non-blocking alert.")
+        UserDefaults.standard.set(Date(), forKey: "lastAccessibilityPromptDate")
         
-        if !accessEnabled {
+        DispatchQueue.main.async {
             let alert = NSAlert()
             alert.messageText = NSLocalizedString("Accessibility Permissions Required", comment: "")
-            alert.informativeText = NSLocalizedString("JoyKeyMapper needs accessibility permissions to simulate keyboard and mouse events. Please enable it in System Settings > Privacy & Security > Accessibility.", comment: "")
+            alert.informativeText = NSLocalizedString("JoyKeyMapper needs accessibility permissions to simulate keyboard and mouse events.\n\nEven if it shows as 'ON' in System Settings, you may need to remove it with the '-' button and add it back to refresh the permission for this specific build.", comment: "")
             alert.addButton(withTitle: NSLocalizedString("Open System Settings", comment: ""))
             alert.addButton(withTitle: NSLocalizedString("Later", comment: ""))
             
-            let response = alert.runModal()
-            if response == .alertFirstButtonReturn {
-                if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
-                    NSWorkspace.shared.open(url)
+            // If the app is launched via 'open' or at login, it might not have a window yet.
+            // We'll use a completion handler with beginSheetModal if possible, 
+            // or just use runModal only if absolutely necessary, but actually let's just 
+            // open settings immediately if denied and not prompt every time.
+            if let window = NSApplication.shared.windows.first {
+                alert.beginSheetModal(for: window) { response in
+                    if response == .alertFirstButtonReturn {
+                        if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility") {
+                            NSWorkspace.shared.open(url)
+                        }
+                    }
                 }
+            } else {
+                // If no window, we'll show it as an independent alert but avoid blocking runModal
+                // by using a custom response handler if possible. Since NSAlert doesn't support that easily,
+                // we'll just log it and potentially open the settings automatically if it's the first time.
+                NSLog("Accessibility: System reports DENIED. No window found to host alert. Please check settings.")
             }
         }
     }
